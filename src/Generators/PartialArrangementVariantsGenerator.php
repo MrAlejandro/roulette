@@ -62,6 +62,16 @@ class PartialArrangementVariantsGenerator implements VariantsGenerator
         }
     }
 
+    protected function calculateInitialNumberAndUpperBound(int $places): array
+    {
+        $maxBinaryInt = 2 ** $places;
+        $step = ceil($maxBinaryInt / $this->parts);
+        $initialNumber = ($this->part - 1) * $step;
+        $upperBound = min($initialNumber + $step, $maxBinaryInt);
+
+        return [$initialNumber, $upperBound];
+    }
+
     protected function getNextBinaryWithNumberOfBitsSet(int $start, int $numOfBits)
     {
         $next = $start;
@@ -83,7 +93,7 @@ class PartialArrangementVariantsGenerator implements VariantsGenerator
         return $qty;
     }
 
-    protected function getStringFromBinaryAugmentedWithZeroesFromLeft(int $strLength, $nextBinary): string
+    protected function getStringFromBinaryAugmentedWithZeroesFromLeft(int $strLength, int $nextBinary): string
     {
         return str_pad(strval(decbin($nextBinary)), $strLength, '0', STR_PAD_LEFT);
     }
@@ -101,15 +111,5 @@ class PartialArrangementVariantsGenerator implements VariantsGenerator
         }
 
         return $next;
-    }
-
-    protected function calculateInitialNumberAndUpperBound(int $places): array
-    {
-        $maxBinaryInt = 2 ** $places;
-        $step = ceil($maxBinaryInt / $this->parts);
-        $initialNumber = ($this->part - 1) * $step;
-        $upperBound = min($initialNumber + $step, $maxBinaryInt);
-
-        return [$initialNumber, $upperBound];
     }
 }

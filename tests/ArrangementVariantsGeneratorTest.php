@@ -16,7 +16,7 @@ class ArrangementVariantsGeneratorTest extends TestCase
         $this->generator = new ArrangementVariantsGenerator();
     }
 
-    public function testItemsEqualsNumberOfPlaces()
+    public function testItemsQuantityEqualsNumberOfPlaces()
     {
         $variants = $this->generator->generate(10, 10);
         $expected = ['1111111111'];
@@ -30,7 +30,7 @@ class ArrangementVariantsGeneratorTest extends TestCase
         $this->checkArrangementVariants($variants, $expected);
     }
 
-    public function testThreeItemsOnThreeFive()
+    public function testThreeItemsOnFivePlaces()
     {
         $variants = $this->generator->generate(5, 3);
         $expected = [
@@ -67,7 +67,7 @@ class ArrangementVariantsGeneratorTest extends TestCase
     /**
      * @dataProvider combinationsQuantityProvider
      */
-    public function testAvailableCombinationsQuantity($expected, $places, $itemsNumber)
+    public function testAvailableVariantsQuantity($expected, $places, $itemsNumber)
     {
         $this->assertEquals($expected, $this->generator->countAvailableVariants($places, $itemsNumber));
     }

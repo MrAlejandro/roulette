@@ -4,7 +4,7 @@ namespace App\Printers;
 
 class BatchFilePrinter implements Printer
 {
-    const FLUSH_LINES_THRESHOLD = 10000;
+    const FLUSH_LINES_THRESHOLD = 100000;
 
     protected $lines = [];
     protected $handler;
@@ -12,7 +12,7 @@ class BatchFilePrinter implements Printer
     public function __construct(string $filePath)
     {
         if (!file_exists(dirname($filePath))) {
-            mkdir(dirname($filePath), 0755, true);
+            mkdir(dirname($filePath), 0744, true);
         }
         $this->handler = fopen($filePath, 'w');
     }

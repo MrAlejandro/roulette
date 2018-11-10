@@ -21,7 +21,7 @@ class Roulette
         $this->printableThreshold = $printableThreshold;
     }
 
-    public function run(int $fieldsCount, int $chipCount)
+    public function run(int $fieldsCount, int $chipCount): void
     {
         $variantsCount = $this->variantsGenerator->countAvailableVariants(
             $fieldsCount, $chipCount

@@ -25,7 +25,7 @@ class InMemoryPrinter implements Printer
         }
     }
 
-    public function getPrinted()
+    public function getPrinted(): array
     {
         return $this->printed;
     }
