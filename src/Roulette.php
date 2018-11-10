@@ -28,11 +28,11 @@ class Roulette
         );
 
         if ($variantsCount < $this->printableThreshold) {
-            $this->printer->printLine("менее {$this->printableThreshold} вариантов");
+            $this->printer->printHeader("менее {$this->printableThreshold} вариантов");
             return;
         }
 
-        $this->printer->printLine($variantsCount);
+        $this->printer->printHeader($variantsCount);
         $arrangementVariants = $this->variantsGenerator->generate($fieldsCount, $chipCount);
         $this->printer->printLines($arrangementVariants);
     }

@@ -10,6 +10,7 @@ use App\Roulette;
 use App\Generators\ArrangementVariantsGenerator;
 use App\Generators\PartialArrangementVariantsGenerator;
 use App\Printers\BatchFilePrinter;
+use App\Printers\HeadlessFilePrinter;
 
 class RouletteCommand extends Command
 {
@@ -32,48 +33,77 @@ class RouletteCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $start = time();
         $fieldsCount = (int) $input->getArgument('fieldsCount');
         $chipCount = (int) $input->getArgument('chipCount');
 
-        if ($this->isEligibleForParallelProcessing()) {
-            $parts = 2;
-            for ($i = 1; $i <= $parts; $i++) {
-                $pid = pcntl_fork();
-
-                if ($pid === 0) {
-                    $targetFilePath = implode(
-                         DIRECTORY_SEPARATOR,
-                        [__DIR__, '..', '..', 'var', "variants_{$fieldsCount}_{$chipCount}_{$i}.txt"]
-                    );
-                    $roulette = new Roulette(
-                        new PartialArrangementVariantsGenerator($i, $parts),
-                        new BatchFilePrinter($targetFilePath)
-                    );
-                    $roulette->run($fieldsCount, $chipCount);
-                    exit;
-                }
-            }
-
-            while (pcntl_waitpid(0, $status) != -1);
+        $start = time();
+        if ($this->isEligibleForParallelProcessing($fieldsCount, $chipCount)) {
+            $this->runParallelProcessing($fieldsCount, $chipCount);
         } else {
-            $targetFilePath = implode(
-                DIRECTORY_SEPARATOR,
-                [__DIR__, '..', '..', 'var', "variants_{$fieldsCount}_{$chipCount}.txt"]
-            );
-            $roulette = new Roulette(
-                new ArrangementVariantsGenerator(),
-                new BatchFilePrinter($targetFilePath)
-            );
-            $roulette->run($fieldsCount, $chipCount);
+            $this->runSingleProcessing($fieldsCount, $chipCount);
         }
 
         $end = time();
         $output->writeln(sprintf('Time spent: %d sec', $end - $start));
     }
 
-    protected function isEligibleForParallelProcessing()
+    protected function isEligibleForParallelProcessing($fieldsCount, $chipsCount)
     {
-        return true && function_exists('pcntl_fork');
+        $delta = $fieldsCount - $chipsCount;
+        $makesSenseToParallel = $fieldsCount > 20 && $delta > 5;
+
+        return function_exists('pcntl_fork')
+            && $makesSenseToParallel;
     }
+
+    protected function runParallelProcessing(int $fieldsCount, int $chipCount): void
+    {
+        $parts = $this->getOptimalPartsNumber();
+        for ($part = 1; $part <= $parts; $part++) {
+            $pid = pcntl_fork();
+
+            if ($pid === 0) {
+                $targetFilePath = $this->getTargetFilePath("variants_{$fieldsCount}_{$chipCount}_{$part}.txt");
+                $batchPrinter = new BatchFilePrinter($targetFilePath);
+                $roulette = new Roulette(
+                    new PartialArrangementVariantsGenerator($part, $parts),
+                    $part === 1 ? $batchPrinter : new HeadlessFilePrinter($batchPrinter)
+                );
+                $roulette->run($fieldsCount, $chipCount);
+                exit;
+            }
+        }
+
+        $this->waitUntilAllProcessesFinished();
+    }
+
+    protected function getOptimalPartsNumber()
+    {
+        // TODO: implement some calculation (may be cross-platform cores quantity check)
+        return 12;
+    }
+
+    protected function getTargetFilePath($targetFileName): string
+    {
+        return implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', 'var', $targetFileName]);
+    }
+
+    protected function waitUntilAllProcessesFinished(): void
+    {
+        $waitForAnyChild = 0;
+        $status = null;
+        while (pcntl_waitpid($waitForAnyChild, $status) !== -1) {
+        }
+    }
+
+    protected function runSingleProcessing($fieldsCount, $chipCount): void
+    {
+        $targetFilePath = $this->getTargetFilePath("variants_{$fieldsCount}_{$chipCount}.txt");
+        $roulette = new Roulette(
+            new ArrangementVariantsGenerator(),
+            new BatchFilePrinter($targetFilePath)
+        );
+        $roulette->run($fieldsCount, $chipCount);
+    }
+
 }

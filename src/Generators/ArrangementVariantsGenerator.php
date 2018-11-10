@@ -6,6 +6,6 @@ class ArrangementVariantsGenerator extends PartialArrangementVariantsGenerator i
 {
     public function __construct()
     {
-        parent::__construct(0, 0);
+        parent::__construct(1, 1);
     }
 }

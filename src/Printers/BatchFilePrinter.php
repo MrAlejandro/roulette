@@ -17,6 +17,11 @@ class BatchFilePrinter implements Printer
         $this->handler = fopen($filePath, 'w');
     }
 
+    public function printHeader(string $header): void
+    {
+        $this->printLine($header);
+    }
+
     public function printLine(string $line): void
     {
         fwrite($this->handler, $line . PHP_EOL);
@@ -35,7 +40,7 @@ class BatchFilePrinter implements Printer
         $this->flush();
     }
 
-    protected function flush()
+    protected function flush(): void
     {
         if (empty($this->lines)) {
             return;

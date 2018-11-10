@@ -20,7 +20,7 @@ class PartialArrangementVariantsGeneratorTest extends TestCase
 
     public function testThreeItemsOnFivePlacesAllAtOncePartialVariants()
     {
-        $generator = new PartialArrangementVariantsGenerator(0, 0);
+        $generator = new PartialArrangementVariantsGenerator(1, 1);
         $variants = $generator->generate(5, 3);
         $expected = [
             '00111', '01011', '01101', '01110', '10011',

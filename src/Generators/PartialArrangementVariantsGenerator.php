@@ -105,13 +105,10 @@ class PartialArrangementVariantsGenerator implements VariantsGenerator
 
     protected function calculateInitialNumberAndUpperBound(int $places): array
     {
-        $maxBinaryInt = $upperBound = 2 ** $places;
-        $initialNumber = 0;
-        if ($this->parts) {
-            $step = ceil($maxBinaryInt / $this->parts);
-            $initialNumber = ($this->part - 1) * $step;
-            $upperBound = min($initialNumber + $step, $maxBinaryInt);
-        }
+        $maxBinaryInt = 2 ** $places;
+        $step = ceil($maxBinaryInt / $this->parts);
+        $initialNumber = ($this->part - 1) * $step;
+        $upperBound = min($initialNumber + $step, $maxBinaryInt);
 
         return [$initialNumber, $upperBound];
     }
