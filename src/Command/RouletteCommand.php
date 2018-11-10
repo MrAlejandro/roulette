@@ -8,6 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use App\Roulette;
 use App\Generators\ArrangementVariantsGenerator;
+use App\Generators\PartialArrangementVariantsGenerator;
 use App\Printers\BatchFilePrinter;
 
 class RouletteCommand extends Command
@@ -35,17 +36,44 @@ class RouletteCommand extends Command
         $fieldsCount = (int) $input->getArgument('fieldsCount');
         $chipCount = (int) $input->getArgument('chipCount');
 
-        $targetFilePath = implode(
-            DIRECTORY_SEPARATOR,
-            [__DIR__, '..', '..', 'var', "variants_{$fieldsCount}_{$chipCount}.txt"]
-        );
-        $roulette = new Roulette(
-            new ArrangementVariantsGenerator(),
-            new BatchFilePrinter($targetFilePath)
-        );
-        $roulette->run($fieldsCount, $chipCount);
+        if ($this->isEligibleForParallelProcessing()) {
+            $parts = 2;
+            for ($i = 1; $i <= $parts; $i++) {
+                $pid = pcntl_fork();
+
+                if ($pid === 0) {
+                    $targetFilePath = implode(
+                         DIRECTORY_SEPARATOR,
+                        [__DIR__, '..', '..', 'var', "variants_{$fieldsCount}_{$chipCount}_{$i}.txt"]
+                    );
+                    $roulette = new Roulette(
+                        new PartialArrangementVariantsGenerator($i, $parts),
+                        new BatchFilePrinter($targetFilePath)
+                    );
+                    $roulette->run($fieldsCount, $chipCount);
+                    exit;
+                }
+            }
+
+            while (pcntl_waitpid(0, $status) != -1);
+        } else {
+            $targetFilePath = implode(
+                DIRECTORY_SEPARATOR,
+                [__DIR__, '..', '..', 'var', "variants_{$fieldsCount}_{$chipCount}.txt"]
+            );
+            $roulette = new Roulette(
+                new ArrangementVariantsGenerator(),
+                new BatchFilePrinter($targetFilePath)
+            );
+            $roulette->run($fieldsCount, $chipCount);
+        }
 
         $end = time();
         $output->writeln(sprintf('Time spent: %d sec', $end - $start));
+    }
+
+    protected function isEligibleForParallelProcessing()
+    {
+        return true && function_exists('pcntl_fork');
     }
 }

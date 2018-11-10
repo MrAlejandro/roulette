@@ -19,19 +19,14 @@ class ArrangementVariantsGeneratorTest extends TestCase
     public function testItemsEqualsNumberOfPlaces()
     {
         $variants = $this->generator->generate(10, 10);
-        $expected = [
-            '1111111111',
-        ];
+        $expected = ['1111111111'];
         $this->checkArrangementVariants($variants, $expected);
     }
 
     public function testOneItemOnTwoPlaces()
     {
         $variants = $this->generator->generate(2, 1);
-        $expected = [
-            '01',
-            '10',
-        ];
+        $expected = ['01', '10'];
         $this->checkArrangementVariants($variants, $expected);
     }
 
@@ -39,16 +34,8 @@ class ArrangementVariantsGeneratorTest extends TestCase
     {
         $variants = $this->generator->generate(5, 3);
         $expected = [
-            '00111',
-            '01011',
-            '01101',
-            '01110',
-            '10011',
-            '10101',
-            '10110',
-            '11001',
-            '11010',
-            '11100',
+            '00111', '01011', '01101', '01110', '10011',
+            '10101', '10110', '11001', '11010', '11100',
         ];
         $this->checkArrangementVariants($variants, $expected);
     }
