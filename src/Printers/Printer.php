@@ -4,5 +4,6 @@ namespace App\Printers;
 
 interface Printer
 {
-    public function print(string $line): void;
+    public function printLine(string $line): void;
+    public function printLines(Iterable $lines): void;
 }

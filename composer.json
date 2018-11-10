@@ -1,4 +1,5 @@
 {
+    "bin": ["bin/roulette"],
     "require-dev": {
         "phpunit/phpunit": "6.3.1"
     },
@@ -10,5 +11,8 @@
     },
     "scripts": {
         "test": "vendor/bin/phpunit tests --bootstrap vendor/autoload.php"
+    },
+    "require": {
+        "symfony/console": "^4.1"
     }
 }

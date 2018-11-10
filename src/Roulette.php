@@ -2,39 +2,38 @@
 
 namespace App;
 
-use App\Generators\CombinationGenerator;
+use App\Generators\VariantsGenerator;
 use App\Printers\Printer;
 
 class Roulette
 {
-    const PRINTABLE_QUANTITY = 10;
-
-    protected $combinationGenerator;
+    protected $variantsGenerator;
     protected $printableThreshold;
     protected $printer;
 
     public function __construct(
-        CombinationGenerator $cg,
+        VariantsGenerator $cg,
         Printer $pr,
         int $printableThreshold = 10
     ) {
-        $this->combinationGenerator = $cg;
+        $this->variantsGenerator = $cg;
         $this->printer = $pr;
         $this->printableThreshold = $printableThreshold;
     }
 
-    public function execute(int $fieldsCount, int $chipCount)
+    public function run(int $fieldsCount, int $chipCount)
     {
-        $set = range(0, $fieldsCount - 1);
-        $combinationsCount = $this->combinationGenerator->countCombinationsAvailable(
+        $variantsCount = $this->variantsGenerator->countAvailableVariants(
             $fieldsCount, $chipCount
         );
 
-        if ($combinationsCount < $this->printableThreshold) {
-            $this->printer->print("менее {$this->printableThreshold} вариантов");
+        if ($variantsCount < $this->printableThreshold) {
+            $this->printer->printLine("менее {$this->printableThreshold} вариантов");
             return;
         }
 
-
+        $this->printer->printLine($variantsCount);
+        $arrangementVariants = $this->variantsGenerator->generate($fieldsCount, $chipCount);
+        $this->printer->printLines($arrangementVariants);
     }
 }

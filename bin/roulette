@@ -1,0 +1,17 @@
+#!/usr/bin/env php
+
+<?php
+
+use Symfony\Component\Console\Application;
+use App\Command\RouletteCommand;
+
+require_once implode(DIRECTORY_SEPARATOR, [__DIR__, '..', 'vendor', 'autoload.php']);
+
+$application = new Application('roulette', '0.0.1');
+$command = new RouletteCommand();
+
+$application->add($command);
+$application->setDefaultCommand($command->getName(), true);
+$application->run();
+
+

@@ -8,9 +8,16 @@ class InMemoryPrinter implements Printer
 {
     protected $printed = [];
 
-    public function print(string $line): void
+    public function printLine(string $line): void
     {
         $this->printed[] = $line;
+    }
+
+    public function printLines(Iterable $lines): void
+    {
+        foreach ($lines as $line) {
+            $this->printLine($line);
+        }
     }
 
     public function getPrinted()
